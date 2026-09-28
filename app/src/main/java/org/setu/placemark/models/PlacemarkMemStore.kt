@@ -20,6 +20,8 @@ class PlacemarkMemStore : PlacemarkStore {
         return if (foundPlacemark != null) {
             foundPlacemark.title = placemark.title
             foundPlacemark.description = placemark.description
+            foundPlacemark.x = placemark.x
+            foundPlacemark.y = placemark.y
             true
         } else {
             false
