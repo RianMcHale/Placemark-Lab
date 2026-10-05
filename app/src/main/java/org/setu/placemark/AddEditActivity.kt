@@ -1,16 +1,14 @@
 package org.setu.placemark
 
-import android.app.Activity
 import android.os.Bundle
-import android.text.InputType
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import org.setu.placemark.models.PlacemarkModel
 
-class AddEditActivity : Activity() {
+class AddEditActivity : AppCompatActivity() {
     private lateinit var titleInput: EditText
     private lateinit var descriptionInput: EditText
     private lateinit var xInput: EditText
@@ -19,46 +17,21 @@ class AddEditActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        createUserInterface()
+        setContentView(R.layout.activity_add_edit)
 
-        if (intent.hasExtra(EXTRA_ID)) {
-            editingId = intent.getLongExtra(EXTRA_ID, -1L)
-            editingId?.let { loadExistingMark(it) }
+        titleInput = findViewById(R.id.titleInput)
+        descriptionInput = findViewById(R.id.descriptionInput)
+        xInput = findViewById(R.id.xInput)
+        yInput = findViewById(R.id.yInput)
+
+        editingId = intent.getLongExtra("id", -1L).takeIf { it != -1L }
+        if (editingId != null) {
+            findViewById<TextView>(R.id.formTitle).text = "Edit Mark"
+            loadExistingMark(editingId!!)
         }
-    }
 
-    private fun createUserInterface() {
-        val form = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(32, 32, 32, 32)
-        }
-
-        titleInput = EditText(this).apply { hint = "Title" }
-        descriptionInput = EditText(this).apply { hint = "Description" }
-        xInput = coordinateInput("X coordinate")
-        yInput = coordinateInput("Y coordinate")
-
-        form.addView(titleInput)
-        form.addView(descriptionInput)
-        form.addView(xInput)
-        form.addView(yInput)
-        form.addView(Button(this).apply {
-            text = "Save"
-            setOnClickListener { saveMark() }
-        })
-        form.addView(Button(this).apply {
-            text = "Cancel"
-            setOnClickListener { finish() }
-        })
-
-        setContentView(ScrollView(this).apply { addView(form) })
-    }
-
-    private fun coordinateInput(label: String) = EditText(this).apply {
-        hint = label
-        inputType = InputType.TYPE_CLASS_NUMBER or
-                InputType.TYPE_NUMBER_FLAG_DECIMAL or
-                InputType.TYPE_NUMBER_FLAG_SIGNED
+        findViewById<Button>(R.id.saveButton).setOnClickListener { saveMark() }
+        findViewById<Button>(R.id.cancelButton).setOnClickListener { finish() }
     }
 
     private fun loadExistingMark(id: Long) {
@@ -68,7 +41,6 @@ class AddEditActivity : Activity() {
             finish()
             return
         }
-
         titleInput.setText(mark.title)
         descriptionInput.setText(mark.description)
         xInput.setText(mark.x.toString())
@@ -111,9 +83,5 @@ class AddEditActivity : Activity() {
             Toast.makeText(this, "Mark updated", Toast.LENGTH_SHORT).show()
         }
         finish()
-    }
-
-    companion object {
-        const val EXTRA_ID = "org.setu.placemark.ID"
     }
 }
